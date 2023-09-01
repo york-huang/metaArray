@@ -20,7 +20,7 @@ from os.path import join
 from os import linesep
 
 from textwrap import TextWrapper
-import cStringIO
+import io
 
 from metaArray.misc import filePath
 
@@ -85,7 +85,7 @@ class demo_menu(object):
         print(wrapper.fill(self.info))
         print(partition)
 
-        lst = self.items.keys()
+        lst = list(self.items.keys())
         lst.sort()
 
         print('\tOption\tDescription')
@@ -105,7 +105,7 @@ class demo_menu(object):
         print(partition)
 
         while True:
-            option = raw_input("Which option would you like to select? ")
+            option = input("Which option would you like to select? ")
             try:
                 option = int(option)
             except:
@@ -195,7 +195,7 @@ class demo_item(object):
 def prcs_demo(code, summary=''):
 
     # Fill the code block into IO buffer
-    str_buff = cStringIO.StringIO()
+    str_buff = io.StringIO()
     str_buff.write(code.strip())
 
     str_buff.seek(0)
@@ -556,9 +556,9 @@ def plot2d_demo():
     code = """
     # Load some data as example
     #***************************
-    from cPickle import load
+    from pickle import load
     f = open('""" + join(demo_dir, 'rel_amplitude.pickle') + """', 'rb')
-    a = load(f).transpose()
+    a = load(f, encoding='latin1').transpose()
     f.close()
 
     # Construct metaArray from numpy ndarray
@@ -585,7 +585,7 @@ def plot2d_demo():
     from metaArray.drv_pylab import plot2d
     from matplotlib.pyplot import show, close
     fig, ax = plot2d(ary)
-    fig.savefig('demo_plot2d', dpi=400, format='png')
+    fig.savefig('demo_plot2d.png', dpi=400, format='png')
     show()
     close(fig)
     """
@@ -616,7 +616,7 @@ def plot_complex_demo():
     metAry.set_range(0, 'unit', '')
     metAry.set_range(0, 'label', 'Scale')
 
-    fig, host, par = plotcomplex(metAry)
+    fig, host, par = plotcomplex(metAry, force_yorigins=0.0)
     show()
     close(fig)
 

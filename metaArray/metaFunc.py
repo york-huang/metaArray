@@ -123,7 +123,7 @@ def meta_lowpass(metAry, freq, length=0.005, window='hann', copy=True):
         chebwin (needs attenuation)
     """
 
-    assert metAry.ndim is 1, "Only 1D metaArray accepted, there are {0:d} dimemsions in the given data.".format(metAry.ndim)
+    assert metAry.ndim == 1, "Only 1D metaArray accepted, there are {0:d} dimemsions in the given data.".format(metAry.ndim)
 
     if copy:
         ary = metAry.copy()
@@ -232,7 +232,7 @@ def meta_resample(metAry, rate=False, l=0.005, window='hamming', order=5):
     will modify the input array in place.
     """
 
-    assert metAry.ndim is 1, "Only 1D metaArray accepted, there are {0:d} dimemsions in the given data.".format(metAry.ndim)
+    assert metAry.ndim == 1, "Only 1D metaArray accepted, there are {0:d} dimemsions in the given data.".format(metAry.ndim)
 
     ary = metAry.copy()
 
@@ -266,7 +266,7 @@ def meta_resample(metAry, rate=False, l=0.005, window='hamming', order=5):
         rate = scale * 10**exponent
 
     # Target size of the ary
-    n = float(abs(ary.get_range(0, 'end') - ary.get_range(0, 'begin'))) * rate
+    n = int(float(abs(ary.get_range(0, 'end') - ary.get_range(0, 'begin'))) * rate)
 
     if type(l) is float: l = meta_fir_len(ary, l)
 
@@ -291,7 +291,7 @@ def meta_histogram(metAry, bins=False):
     Will raise QuantsationError if unable to determin number of bins.
     """
 
-    assert metAry.ndim is 1, "Only 1D metaArray accepted, there are {0:d} dimemsions in the given data.".format(metAry.ndim)
+    assert metAry.ndim == 1, "Only 1D metaArray accepted, there are {0:d} dimemsions in the given data.".format(metAry.ndim)
 
     # Flatten the data to 1D array
     data = metAry.data.ravel()

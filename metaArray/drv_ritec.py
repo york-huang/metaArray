@@ -165,7 +165,7 @@ class Ritec4000(object):
 
         result = False
         # Attempt to send parameter change self.Retries times
-        for _ in xrange(self.retries):
+        for _ in range(self.retries):
             try:
                 self.serial_port.write(cmd + '\r')
                 result = True
@@ -193,7 +193,7 @@ class Ritec4000(object):
         self.overvolt = self.overvolt_check()
 
         # Will attempt to get parameter self.Retries times
-        for _ in xrange(self.retries):
+        for _ in range(self.retries):
             try:
                 self.serial_port.write(cmd + '\r')
                 time.sleep(0.5)
@@ -460,7 +460,7 @@ class Ritec4000(object):
         Input:                    Control level between 0 and 100 (int)
         """
         # Check that tracking is set to 'Y', else can't set control
-        if self.tracking is not 'Y':
+        if self.tracking != 'Y':
             print('Tracking is not set to "Y" - cannot set control level')
             return
 
@@ -613,7 +613,7 @@ class Ritec4000(object):
             channel = self.channel
 
         # If channel is 'A', need to apply it to each channel separately
-        if channel is 'A':
+        if channel == 'A':
             self.set_gain(value, channel='1')
             self.set_gain(value, channel='2')
             self.set_channel('A')

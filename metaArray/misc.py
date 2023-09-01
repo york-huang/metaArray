@@ -235,9 +235,9 @@ class cplx_trig_func(object):
 
             # length is now identified
             if samp_rate is not False:
-                pts = float(length) * float(samp_rate)
+                pts = int(float(length) * float(samp_rate))
             elif dt is not False:
-                pts = float(length) / float(dt)
+                pts = int(float(length) / float(dt))
             else:
                 raise InsufficientInput("Either samp_rate (sampling rate) or dt (sampling interval) is needed to define pts (number of points)")
 
@@ -472,6 +472,7 @@ def buffered_search(f, string, start=0, buffer_size=4194304):
     given [start] offset position.
 
     This function will only read [buffer_size] bytes into memory at a time.
+    [f] is supposed to be opened with 'rb' mode.
 
     Return -1 if string not found.
     """
@@ -486,10 +487,10 @@ def buffered_search(f, string, start=0, buffer_size=4194304):
         f.seek(f_pos)
         buf = f.read(buffer_size)
 
-        if buf == '':
+        if not buf:
             return -1                           # Reached the end of the file
 
-        str_pos = buf.find(string)
+        str_pos = buf.find(bytes(string, encoding='latin1'))
 
         if str_pos == -1:
             # Couldn't find the string yet, but the file is not finished
@@ -1253,7 +1254,7 @@ def quantise(ary, threshold=1e-8):
     quantum /= threshold        # Inflate the fractional error by threshold amount
     offlimit = np.squeeze(np.nonzero(quantum > quanter))
 
-    if len(offlimit) is not 0:
+    if len(offlimit) != 0:
         raise QuantsationError
     else:
         return quanter
@@ -1313,6 +1314,18 @@ def datestamp():
     """
     return datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d')
 
+def align_yaxis(ax1, v1, ax2, v2):
+    """
+    Adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1
+
+    ref: https://stackoverflow.com/a/10482477
+    """
+    _, y1 = ax1.transData.transform((0, v1))
+    _, y2 = ax2.transData.transform((0, v2))
+    inv = ax2.transData.inverted()
+    _, dy = inv.transform((0, 0)) - inv.transform((0, y1-y2))
+    miny, maxy = ax2.get_ylim()
+    ax2.set_ylim(miny+dy, maxy+dy)
 
 ########################################################################
 # This morlet function has been accepted into the Scipy package.

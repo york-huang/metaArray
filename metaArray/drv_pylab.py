@@ -24,7 +24,7 @@ This file contain a number of drivers classes to matplotlib.
 
 from matplotlib.pyplot import figure
 from matplotlib import cm
-from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import SubplotHost
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 
@@ -277,7 +277,7 @@ def plotcomplexpolar(metaAry, axis=-1, size=(10, 7.5), dpi=75, \
 
 
 
-def plotcomplex(metaAry, size=(10, 7.5), dpi=75, grid=True, \
+def plotcomplex(metaAry, size=(10, 7.5), dpi=75, grid=True, force_yorigins=None, \
                 legend=0, fontsize=15, real_label=None, imag_label=None):
     """
     metaArray function to do a simple 1D plot of complex array as real and imaginary parts.
@@ -320,14 +320,20 @@ def plotcomplex(metaAry, size=(10, 7.5), dpi=75, grid=True, \
     ryunit = metaAry['unit']
     iyunit = metaAry['unit']
 
-    # Leave 10% margin in the y axis
-    rmean = np.average((ry0, ry1))
-    rreach = np.abs(ry0-ry1) / 2 / 0.9
+    if force_yorigins is None:
+        # Leave 10% margin in the y axis
+        rmean = np.average((ry0, ry1))
+        rreach = np.abs(ry0-ry1) / 2 / 0.9
+        imean = np.average((iy0, iy1))
+        ireach = np.abs(iy0-iy1) / 2 / 0.9
+    else:
+        rmean = imean = force_yorigins
+        rreach = max(np.abs(rmean-ry0), np.abs(ry1-rmean)) / 0.9
+        ireach = max(np.abs(imean-iy0), np.abs(iy1-imean)) / 0.9
+
     ry0 = np.sign(ry0-rmean) * rreach + rmean
     ry1 = np.sign(ry1-rmean) * rreach + rmean
 
-    imean = np.average((iy0, iy1))
-    ireach = np.abs(iy0-iy1) / 2 / 0.9
     iy0 = np.sign(iy0-imean) * ireach + imean
     iy1 = np.sign(iy1-imean) * ireach + imean
 
@@ -365,13 +371,18 @@ def plotcomplex(metaAry, size=(10, 7.5), dpi=75, grid=True, \
     x = metaAry.get_axis()
 
     host.plot(x, rdata, 'b-', label=lbl_repr(axis['label'][0], '', real_label))
-    par.plot(x, idata, 'r--', label=lbl_repr(axis['label'][0], '', real_label))
+    par.plot(x, idata, 'r--', label=lbl_repr(axis['label'][0], '', imag_label))
 
     host.grid(grid)
 
     host.set_xlabel(xlabl, fontsize=fontsize)
     host.set_ylabel(rylabl, fontsize=fontsize)
     par.set_ylabel(iylabl, fontsize=fontsize)
+
+    if force_yorigins is not None:
+        # ensure origin ticks are shown
+        host.set_yticks(list(host.get_yticks()) + [rmean,])
+        par.set_yticks(list(par.get_yticks()) + [imean,])
 
     host.set_xlim([x0, x1])
     host.set_ylim([ry0, ry1])
@@ -642,7 +653,7 @@ def plot2d(metaAry, size=(10, 7.5), dpi=75, fontsize=15, cmap=None, \
         except AttributeError:
             cmap = cm.hot
 
-    if corient is not 'horizontal':
+    if corient != 'horizontal':
         corient = 'vertical'
 
     axis = metaAry['range']
@@ -736,10 +747,10 @@ def plot2d(metaAry, size=(10, 7.5), dpi=75, fontsize=15, cmap=None, \
     cax = ax.imshow(data.transpose()[::-1], cmap=cmap, extent=extent, \
                     interpolation=interpolation, vmin=v0, vmax=v1, aspect=ratio)
     if show_cbar:
-        cbar = fig.colorbar(cax, ticks=ticks, orientation=corient, format=cformat)
+        cbar = fig.colorbar(cax, orientation=corient, format=cformat)
 
         # Add colorbar, make sure to specify tick locations to match desired ticklabels
-        cbar.ax.set_yticklabels(ticks_lbl)
+        cbar.set_ticks(ticks, labels=ticks_lbl)
         cbar.set_label(vlabl, fontsize=fontsize)
 
     # ax.set_size(fontsize)
@@ -782,10 +793,16 @@ def lbl_repr(label=None, unit=None, string=None):
         if unit == '':
             pass                    # Unit less quantities
         else:
-            lbl += ' (' + unit + ')'
+            # Handle special prettyunit case like "$\mu$s",
+            # we need "\mu s" to work with the "$\it{ ... }$" syntax.
+            if unit[0] == '$':
+                hsym = unit.rfind('$')
+                if hsym > 0:
+                    unit = f'{unit[1:hsym]} {unit[hsym+1:]}'
+            lbl += r' ($\it{' + unit + r'}$)'
     except TypeError:
         # Most likely unit is not defined, i.e. not a string.
-        lbl += ' (Arb.)'
+        lbl += r' ($\it{Arb.}$)'
 
     return lbl
 

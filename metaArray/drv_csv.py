@@ -310,7 +310,7 @@ class csv_file(object):
         """
         # Check if the file is readable
         try:
-            f = open(self.file_path, 'rU')
+            f = open(self.file_path, 'r')
             return f
         except IOError:
             raise IOError("Unable to read file: " + self.file_path)
@@ -401,7 +401,7 @@ class csv_file(object):
         Gets meta info from a particular data column.
         """
         metainfo = {}
-        for key, val in self.metainfo.items():
+        for key, val in list(self.metainfo.items()):
             metainfo[key] = val[column-1]
         
         self.metainfo = metainfo
@@ -423,13 +423,13 @@ class csv_file(object):
             # Disguard empty rows
             if len(lst) >= 2:
                 # [('lbl0', 'val0'), ('lbl1', 'val1'), ...]
-                info_pair += zip((lst_len-1)*[lst[0]], lst[1:])
+                info_pair += list(zip((lst_len-1)*[lst[0]], lst[1:]))
 
 
         info_pair.sort(key=itemgetter(0))
         for k, g in groupby(info_pair, key=itemgetter(0)):
 
-            val = map(itemgetter(1), g)
+            val = list(map(itemgetter(1), g))
             if k == '':
                 if ''.join(val) == '':
                     # Ohh dear, all blanks. Skip the entry.
@@ -477,7 +477,7 @@ class csv_file(object):
         """
         metainfo = self.metainfo
         for field in keys:
-            if metainfo.has_key(field):
+            if field in metainfo:
                 try:
                     metainfo[field] = func(metainfo[field])
                 except (ValueError, TypeError):
@@ -541,7 +541,7 @@ def to_csv(metAry, path, debug=False, \
     info = metAry.copy_info()
     data = metAry.data
 
-    nfo_keys = info.keys()
+    nfo_keys = list(info.keys())
     nfo_keys.sort()
 
     with open(path.full, 'wb') as f:
@@ -551,7 +551,7 @@ def to_csv(metAry, path, debug=False, \
 
             val = info.pop(key)
 
-            if isinstance(val, (int, long, float, complex)):
+            if isinstance(val, (int, float, complex)):
                 val = str(val)
             else:
                 val = TD + str(val) + TD
@@ -562,7 +562,7 @@ def to_csv(metAry, path, debug=False, \
         if data.ndim == 1:
             # One dimentional data, write out the index - value pairs
 
-            content = zip(metAry.get_axis(), data)
+            content = list(zip(metAry.get_axis(), data))
 
             for idx, val in content:
                 f.write(str(idx) + FD + str(val) + LS)

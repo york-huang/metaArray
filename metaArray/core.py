@@ -220,19 +220,19 @@ class metaArray(object):
         if info is not None:
             if debug: print("*** meta_info was supplied")
 
-            if info.has_key('name'): self_info['name'] = info['name']
-            if info.has_key('unit'): self_info['unit'] = info['unit']
-            if info.has_key('label'): self_info['label'] = info['label']
-            if info.has_key('resample'): self_info['resample'] = info['resample']
+            if 'name' in info: self_info['name'] = info['name']
+            if 'unit' in info: self_info['unit'] = info['unit']
+            if 'label' in info: self_info['label'] = info['label']
+            if 'resample' in info: self_info['resample'] = info['resample']
 
-            if info.has_key('range'):
+            if 'range' in info:
 
-                if info['range'].has_key('begin'): self_info['range']['begin'] = list(info['range']['begin'])
-                if info['range'].has_key('end'): self_info['range']['end'] = list(info['range']['end'])
-                if info['range'].has_key('unit'): self_info['range']['unit'] = list(info['range']['unit'])
-                if info['range'].has_key('label'): self_info['range']['label'] = list(info['range']['label'])
-                if info['range'].has_key('log'): self_info['range']['log'] = list(info['range']['log'])
-                if info['range'].has_key('fft'): self_info['range']['fft'] = list(info['range']['fft'])
+                if 'begin' in info['range']: self_info['range']['begin'] = list(info['range']['begin'])
+                if 'end' in info['range']: self_info['range']['end'] = list(info['range']['end'])
+                if 'unit' in info['range']: self_info['range']['unit'] = list(info['range']['unit'])
+                if 'label' in info['range']: self_info['range']['label'] = list(info['range']['label'])
+                if 'log' in info['range']: self_info['range']['log'] = list(info['range']['log'])
+                if 'fft' in info['range']: self_info['range']['fft'] = list(info['range']['fft'])
 
 
         ## Use the specified 'info' parameter if given
@@ -362,6 +362,7 @@ class metaArray(object):
             elif unit == '':
                 desc += "\t['unit'] Array element quantity is unitless." + linesep
             else:
+                unit = unit.decode('utf-8') if (type(unit) == bytes) else str(unit)
                 desc += "\t['unit'] Array element quantity unit is: " + unit + linesep
         except:
             pass
@@ -579,7 +580,7 @@ class metaArray(object):
 
         nfo_range = self.info['range']
 
-        if nfo_range.has_key(field):
+        if field in nfo_range:
             nfo_range[field][axis] = value
         else:
             raise ValueError("Requested field (" + field + ") name do not exist")
@@ -595,7 +596,7 @@ class metaArray(object):
         """
         nfo_range = self.info['range']
 
-        if nfo_range.has_key(field):
+        if field in nfo_range:
             return nfo_range[field][axis]
         else:
             raise ValueError("Requested field (" + field + ") name do not exist")
@@ -790,15 +791,15 @@ class metaArray(object):
             info_unit = info['unit']
 
             # Remove grand parent info in
-            for field in info.keys():
+            for field in list(info.keys()):
                 if field.find('.') != -1:
                     del info[field]
 
             # Merge the two branches together
-            for field in binfo.keys():
+            for field in list(binfo.keys()):
                 if field.find('.') != -1:
                     continue
-                elif info.has_key(field):
+                elif field in info:
                     if info[field] != binfo[field]:
                         info[field] += '|' + op + '|' + binfo[field]
                 else:
@@ -880,15 +881,15 @@ class metaArray(object):
             info_unit = info['unit']
 
             # Remove grand parent info in
-            for field in info.keys():
+            for field in list(info.keys()):
                 if field.find('.') != -1:
                     del info[field]
 
             # Merge the two branches together
-            for field in binfo.keys():
+            for field in list(binfo.keys()):
                 if field.find('.') != -1:
                     continue
-                elif info.has_key(field):
+                elif field in info:
                     if info[field] != binfo[field]:
                         info[field] += '|' + op + '|' + binfo[field]
                 else:
@@ -1165,7 +1166,7 @@ class metaArray(object):
         """
         info = self.copy_info()
 
-        for field in info.keys():
+        for field in list(info.keys()):
             if field.find('.') != -1:
                 del info[field]
 
@@ -1234,8 +1235,7 @@ class metaArray(object):
                 # Log scale applied, use default base
                 lst.append(logFunc(x0[i], 0, x1[i], shape[i]))
             else:
-                raise(ValueError, "Log scale descriptor can only be int,\
-                    float, True, False or None, given: " + str(lg[i]))
+                raise ValueError
         return lst
 
     def gen_i2x(self):

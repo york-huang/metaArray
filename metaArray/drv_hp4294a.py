@@ -338,7 +338,7 @@ class hp4294a:
                 sock.sendall(msg)                                           # Send msg
                 if debug: print('(-> Socket established to instrument, command sent: ' + str(repr(msg)))
                 break
-            except socket.error, err_msg:                                   # Failed to connect
+            except socket.error as err_msg:                                   # Failed to connect
                 print('Unable to complete sending of commands to the instrument. Error message : ' + err_msg[1])
                 if retry == 0:              # Ran out of retry attempts
                     try:
@@ -511,7 +511,7 @@ class hp4294a:
         #       |IMLS|IMCS|IMLP|IMCP|IMRS|IMQ|IMD|LPR|CPR}
         """
 
-        if self.meas_dict.has_key(measurement):
+        if measurement in self.meas_dict:
             return 'MEAS ' + measurement
         else:
             raise ValueError(str(repr(measurement)) + " is not a recognised measurement type.")

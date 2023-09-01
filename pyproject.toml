@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metaArray"
+description = "meta-info container for numpy ndarray, with associate libraries."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Charley (Yichao) Fan", email = "y.fan@warwick.ac.uk"},
+  {name = "Sam Hill", email = "ultrasoundsam@gmail.com"},
+]
+maintainers = [
+  {name = "Junyi Huang", email = "york@vip.sunly.com"}
+]
+keywords = []
+classifiers = [
+  "Development Status :: 1 - Beta",
+  "Programming Language :: Python :: 3"
+]
+dependencies = [
+    "h5py",
+    "matplotlib >= 3.5",
+    "numpy",
+    "pyserial",
+    "scipy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+gui = ["PyQt5"]
+
+[project.urls]
+homepage = "http://warwickultrasound.co.uk"
+#documentation = ""
+repository = "https://github.com/york-huang/metaArray"
+#changelog = ""
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["metaArray*"]
+
+[tool.setuptools.package-data]
+"metaArray.example" = ["*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "metaArray.version.version"}
+
+

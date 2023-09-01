@@ -346,7 +346,7 @@ class isf(object):
             f.seek(data_start)
             buf = f.read(20)
 
-            pos_x = buf.find('#') + 1
+            pos_x = buf.find(b'#') + 1
             pos_yyy = pos_x + 1
             desc_len = int(buf[pos_x:pos_yyy])                  # <x>
 
@@ -360,7 +360,7 @@ class isf(object):
 
             # Read the header byte stream
             f.seek(hdr_start)
-            hdr_dict = self.proc_header(f.read(hdr_len))
+            hdr_dict = self.proc_header(f.read(hdr_len).decode('utf-8'))
 
             # Have a quick guess on the unpack string, this is the most rudimentary
             # information necessary to decode the binary data
@@ -419,19 +419,19 @@ class isf(object):
 
             # PT_F
             PT_F = '\t'
-            if hdr_dict.has_key('PT_F'):
+            if 'PT_F' in hdr_dict:
                 PT_F = hdr_dict['PT_F']
-            elif hdr_dict.has_key('PT_FMT'):
+            elif 'PT_FMT' in hdr_dict:
                 PT_F = hdr_dict['PT_FMT']
 
             # WFI
             WFI = '\t'
-            if hdr_dict.has_key('WFI'):
+            if 'WFI' in hdr_dict:
                 WFI = hdr_dict['WFI']
-            elif hdr_dict.has_key('WFID'):
+            elif 'WFID' in hdr_dict:
                 WFI = hdr_dict['WFID']
             else:
-                for key in hdr_dict.keys():
+                for key in list(hdr_dict.keys()):
                     if key.find(':WFI') != -1:
                         WFI = hdr_dict[key]
                         break
@@ -454,7 +454,7 @@ class isf(object):
                 desc += index_str + "Data length: " + str(data_len) + linesep
                 desc += index_str + "Unpack string: " + unpack_str + linesep
 
-                for key, val in hdr_dict.items():
+                for key, val in list(hdr_dict.items()):
                     desc += index_str + '[' + key + '] ' + str(val) + linesep
 
                 desc += linesep
@@ -484,9 +484,9 @@ class isf(object):
         """
 
         if self.debug > 0:
-            if hdr_dict.has_key('ENCDG'):
+            if 'ENCDG' in hdr_dict:
                 ENC = hdr_dict['ENCDG']
-            elif hdr_dict.has_key('ENC'):
+            elif 'ENC' in hdr_dict:
                 ENC = hdr_dict['ENC']
             else:
                 ENC = None
@@ -495,9 +495,9 @@ class isf(object):
                 print('ENC/ENCDG value is expected to be "BIN" or "BINARY", got "' + ENC + '" instead.')
 
         # Check byte order / endianness
-        if hdr_dict.has_key('BYT_O'):
+        if 'BYT_O' in hdr_dict:
             BYT_O = hdr_dict['BYT_O']
-        elif hdr_dict.has_key('BYT_OR'):
+        elif 'BYT_OR' in hdr_dict:
             BYT_O = hdr_dict['BYT_OR']
         else:
             return None
@@ -510,33 +510,33 @@ class isf(object):
             return None
 
         # Check number of elements in the array
-        if hdr_dict.has_key('NR_P'):
+        if 'NR_P' in hdr_dict:
             NR_P = hdr_dict['NR_P']
-        elif hdr_dict.has_key('NR_PT'):
+        elif 'NR_PT' in hdr_dict:
             NR_P = hdr_dict['NR_PT']
-        elif hdr_dict.has_key(':WFMP:NR_P'):
+        elif ':WFMP:NR_P' in hdr_dict:
             NR_P = hdr_dict[':WFMP:NR_P']
-        elif hdr_dict.has_key(':WFMPRE:NR_PT'):
+        elif ':WFMPRE:NR_PT' in hdr_dict:
             NR_P = hdr_dict[':WFMPRE:NR_PT']
         else:
             return None
 
         # Work out bit depth of the array elements
-        if hdr_dict.has_key('BIT_N'):
+        if 'BIT_N' in hdr_dict:
             BYT_N = hdr_dict['BIT_N'] / 8
-        elif hdr_dict.has_key('BIT_NR'):
+        elif 'BIT_NR' in hdr_dict:
             BYT_N = hdr_dict['BIT_NR'] / 8
-        elif hdr_dict.has_key(':WFMPRE:BYT_NR'):
+        elif ':WFMPRE:BYT_NR' in hdr_dict:
             BYT_N = hdr_dict[':WFMPRE:BYT_NR']
-        elif hdr_dict.has_key(':WFMP:BYT_N'):
+        elif ':WFMP:BYT_N' in hdr_dict:
             BYT_N = hdr_dict[':WFMP:BYT_N']
         else:
             return None
 
         # Work out the data type
-        if hdr_dict.has_key('BN_F'):
+        if 'BN_F' in hdr_dict:
             BN_F = hdr_dict['BN_F']
-        elif hdr_dict.has_key('BN_FMT'):
+        elif 'BN_FMT' in hdr_dict:
             BN_F = hdr_dict['BN_FMT']
         else:
             return None
@@ -578,7 +578,7 @@ class isf(object):
         hdr_format = self.hdr_format
 
         for key, dtype in hdr_format:
-            if header.has_key(key):
+            if key in header:
                 header[key] = dtype(Decimal(header[key]))
         return header
 
@@ -611,25 +611,25 @@ class isf(object):
 
         # Attempt to scale the data
         # YMU
-        if hdr_dict.has_key('YMU'):
+        if 'YMU' in hdr_dict:
             YMU = hdr_dict['YMU']
-        elif hdr_dict.has_key('YMULT'):
+        elif 'YMULT' in hdr_dict:
             YMU = hdr_dict['YMULT']
         else:
             YMU = 1
 
         # YOF
-        if hdr_dict.has_key('YOF'):
+        if 'YOF' in hdr_dict:
             YOF = hdr_dict['YOF']
-        elif hdr_dict.has_key('YOFF'):
+        elif 'YOFF' in hdr_dict:
             YOF = hdr_dict['YOFF']
         else:
             YOF = 0
 
         # YZE
-        if hdr_dict.has_key('YZE'):
+        if 'YZE' in hdr_dict:
             YZE = hdr_dict['YZE']
-        elif hdr_dict.has_key('YZERO'):
+        elif 'YZERO' in hdr_dict:
             YZE = hdr_dict['YZERO']
         else:
             YZE = 0
@@ -640,34 +640,34 @@ class isf(object):
         data = metaArray(data)
 
         # data['unit']
-        if hdr_dict.has_key('YUN'):
+        if 'YUN' in hdr_dict:
             data['unit'] = hdr_dict['YUN']
-        elif hdr_dict.has_key('YUNIT'):
+        elif 'YUNIT' in hdr_dict:
             data['unit'] = hdr_dict['YUNIT']
 
         # data['label']
-        if hdr_dict.has_key('COMP'):
+        if 'COMP' in hdr_dict:
             data['label'] = hdr_dict['COMP']
-        elif hdr_dict.has_key('PT_F'):
+        elif 'PT_F' in hdr_dict:
             data['label'] = hdr_dict['PT_F']
-        elif hdr_dict.has_key('PT_FMT'):
+        elif 'PT_FMT' in hdr_dict:
             data['label'] = hdr_dict['PT_FMT']
 
         # XUN
-        if hdr_dict.has_key('XUN'):
+        if 'XUN' in hdr_dict:
             data.set_range(0, 'unit', hdr_dict['XUN'])
-        elif hdr_dict.has_key('XUNIT'):
+        elif 'XUNIT' in hdr_dict:
             data.set_range(0, 'unit', hdr_dict['XUNIT'])
 
 
         # WFI
         WFI = None
-        if hdr_dict.has_key('WFI'):
+        if 'WFI' in hdr_dict:
             WFI = hdr_dict['WFI']
-        elif hdr_dict.has_key('WFID'):
+        elif 'WFID' in hdr_dict:
             WFI = hdr_dict['WFID']
         else:
-            for key in hdr_dict.keys():
+            for key in list(hdr_dict.keys()):
                 if key.find(':WFI') != -1:
                     WFI = hdr_dict[key]
                     break
@@ -683,23 +683,23 @@ class isf(object):
         # scale the x-axis
 
         # XIN
-        if hdr_dict.has_key('XIN'):
+        if 'XIN' in hdr_dict:
             XIN = hdr_dict['XIN']
-        elif hdr_dict.has_key('XINCR'):
+        elif 'XINCR' in hdr_dict:
             XIN = hdr_dict['XINCR']
         else:
             XIN = 1
 
         # PT_O
-        if hdr_dict.has_key('PT_O'):
+        if 'PT_O' in hdr_dict:
             PT_O = hdr_dict['PT_O']
-        elif hdr_dict.has_key('PT_OFF'):
+        elif 'PT_OFF' in hdr_dict:
             PT_O = hdr_dict['PT_OFF']
         else:
             PT_O = 0
 
         # XZE
-        if hdr_dict.has_key('XZE'):
+        if 'XZE' in hdr_dict:
             XZE = hdr_dict['XZE']
         else:
             XZE = PT_O * -XIN
@@ -712,7 +712,7 @@ class isf(object):
         data.set_range(0, 'end', XZE + XIN * len(data))
 
         # Include the rest of the metainfo into metaArray
-        for field, value in hdr_dict.items():
+        for field, value in list(hdr_dict.items()):
             data["isf."+field] = value
 
         data.update_range()
@@ -774,13 +774,13 @@ class TDS2000_csv(csv_file):
 
         # Create the metainfo
         metainfo = {}
-        info_pair = zip(self.getcolumn(0), self.getcolumn(1))
+        info_pair = list(zip(self.getcolumn(0), self.getcolumn(1)))
 
         info_pair.sort(key=itemgetter(0))
         for field, value in groupby(info_pair, key=itemgetter(0)):
-            val = map(itemgetter(1), value)[0]
-            if field is '':
-                if val is '':
+            val = list(map(itemgetter(1), value))[0]
+            if field == '':
+                if val == '':
                     # Blank lines
                     continue
                 # Orphan values
@@ -853,7 +853,7 @@ class TDS2000_csv(csv_file):
         ary['range']['label'][0] = metainfo['Source']
 
         # Include the rest of the metainfo into metaArray
-        for field, value in metainfo.items():
+        for field, value in list(metainfo.items()):
             ary["TDS2.csv."+field] = value
 
         ary.update_range()
@@ -1021,7 +1021,7 @@ class DPO2000_csv(csv_file):
 
         # Update the basic metaArray info
         ary['unit'] = metainfo['Vertical Units']
-        if metainfo['Label'] is '':
+        if metainfo['Label'] == '':
             ary['name'] = self.name
         else:
             ary['name'] = metainfo['Label']
@@ -1033,7 +1033,7 @@ class DPO2000_csv(csv_file):
         ary['range']['label'][0] = index_name
 
         # Include the rest of the metainfo into metaArray
-        for field, value in metainfo.items():
+        for field, value in list(metainfo.items()):
             ary["DPO2.csv."+field] = value
 
         ary.update_range()

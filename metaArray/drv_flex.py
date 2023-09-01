@@ -24,8 +24,8 @@ to actually the files.
 
 from os import linesep
 from struct import calcsize
-from numpy import fromstring
 from copy import copy
+import numpy as np
 
 from metaArray.misc import filePath
 from metaArray.misc import gettypecode
@@ -141,15 +141,15 @@ class FlexFiles(object):
             print('The first header record do not match description, ' + \
             'this binary record do not appear to be a Flex file.')
 
-            raise ValueError('Header record 1, ' + hdr1[0][0] + 'should be: "' + hdr1[0][3] \
-            + '", got "' + header1[0] + '" instead.')
+            raise ValueError('Header record 1, ' + hdr1[0][0] + ' should be: "' + \
+                    hdr1[0][3] + '", got "' + header1[0] + '" instead.')
 
         if header1[1] != hdr1[1][3]:
             print('The first header record do not match description, ' + \
             'this binary record do not appear to be a Flex file.')
 
-            raise ValueError('Header record 1, ' + hdr1[1][0] + 'should be: ' + str(hdr1[1][3]) \
-            + ', got ' + str(header1[1]) + ' instead.')
+            raise ValueError('Header record 1, ' + hdr1[1][0] + ' should be: ' + \
+                    str(hdr1[1][3]) + ', got ' + str(header1[1]) + ' instead.')
 
         # Parse the second header
         hdr2 = []
@@ -170,7 +170,8 @@ class FlexFiles(object):
             'this binary record do not appear to be a Flex pout hist file.')
 
             raise ValueError('Header record 1, ' + hdr2[1][0] + \
-            'should be: ' + hdr2[1][3] + ', got ' + header2[1] + ' instead.')
+            ' should be: ' + hdr2[1][3] + ', got ' + header2[1] + \
+            ' instead.')
 
         self.date = header2[2].strip()
         self.code = header2[3].strip()
@@ -186,10 +187,10 @@ class FlexFiles(object):
                   " using " + self.code)
 
             self.extra1 = header2[5].strip()
-            print('20-Character variable (unused): ' + str(header2[5]))
+            print('20-Character variable (unused): ' + self.extra1)
 
             self.extra2 = header2[6].strip()
-            print('20-Character variable (unused): ' + str(header2[6]))
+            print('20-Character variable (unused): ' + self.extra2)
 
             print("=== End of current record debug info ===", linesep)
 
@@ -418,16 +419,23 @@ class FlexFiles(object):
 
             # Different fields needs to be unpack differently
             if v_type == 'c': # These are strings, no need to unpack
-                current_entry = record[current_index:next_index]
+                current_entry = record[current_index:next_index].decode('utf-8')
                 if strip:
                     current_entry = current_entry.strip()
             else:
                 # These are numerical data
-                current_entry = fromstring(record[current_index:next_index], unpack_str)[0]
-                if v_name == 'data':
+                current_entry = np.frombuffer( \
+                        record[current_index:next_index],
+                        # DO NOT use raw unpack_str,
+                        # it is deprecated and behaves weird
+                        np.dtype(endian + v_type), count=v_length)
+
+                if v_name == 'data':  # keep it as 1d array
                     # This is the main data bit, use numpy to unpack directly
                     if type(v_val) == tuple:
                         current_entry = current_entry.reshape(v_val[::-1]).transpose()
+                else:  # take the scalar
+                    current_entry = current_entry[0]
 
             ############################################################
             #
@@ -526,7 +534,7 @@ class data_out1(FlexFiles):
             'this binary record do not appear to be a Flex data out1 file.')
 
             raise ValueError('Header record 1, ' + hdr2[0][0] + \
-            'should be: "dat1", got "' + header2[0] + '" instead.')
+            ' should be: "dat1", got "' + header2[0] + '" instead.')
 
         # The following are skeleton descriptions, have to fill in the
         # blanks before being used to parse the actual data records.
@@ -618,7 +626,7 @@ class data_out1(FlexFiles):
         B_pos = entry_info[4]
         B_parts = entry_info[5]
 
-        record_payload = ''   # binary byte stream
+        record_payload = b''   # binary byte stream
         parts = 0
         current_pos = B_pos
         while parts < B_parts:
@@ -1288,7 +1296,7 @@ class pout_hist(FlexFiles):
         data['range']['label'][0] = 'time'
 
         # Include the rest of the metainfo into metaArray
-        for field, value in desc.iteritems():
+        for field, value in desc.items():
             data["POUT_hist."+field] = value
 
         data[self.fname + '.desc'] = self.title

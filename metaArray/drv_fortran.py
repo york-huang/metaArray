@@ -101,13 +101,13 @@ class binrecord(object):
             print(msg)
 
         if debug:
-            print'file_path: ', self.file_path.full
+            print('file_path: ', self.file_path.full)
 
-            print'unpack_str: ', self.unpack_str
-            print'header_len: ', self.header_len
+            print('unpack_str: ', self.unpack_str)
+            print('header_len: ', self.header_len)
 
-            print'record_pos: ', self.record_pos
-            print'record_num: ', self.record_num
+            print('record_pos: ', self.record_pos)
+            print('record_num: ', self.record_num)
 
         return
 
@@ -120,7 +120,7 @@ class binrecord(object):
     def __getitem__(self, key):
         key = self._chk_index(key)
         self.seek(key)
-        return self.next()
+        return next(self)
 
     def __setitem__(self, key, value):
         raise NotImplementedError
@@ -162,7 +162,7 @@ class binrecord(object):
                 file_pos = f.tell()
                 head = f.read(header_len)
 
-                if head == '':
+                if head == b'':
                     break # Humm, hit the end of the file, should stop now
 
                 record_len = unpack(unpack_str, head)[0]
@@ -303,7 +303,7 @@ class binrecord(object):
         return self.record_index[key][2] - self.header_len * 2
 
 
-    def next(self):
+    def __next__(self):
         """
         Return the current record, and advance to the next record.
 
