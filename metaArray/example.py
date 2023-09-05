@@ -236,7 +236,7 @@ def isf_demo():
     """
     code = """
     from metaArray.drv_Tek import isf
-    f = isf('""" + join(demo_dir, 'DPO4000B.isf') + """', debug = True)
+    f = isf(""" + repr(join(demo_dir, 'DPO4000B.isf')) + """, debug = True)
 
     # Have a look at the file content
     #*********************************
@@ -271,7 +271,7 @@ def DPO2000_csv_demo():
     """
     code = """
     from metaArray.drv_Tek import DPO2000_csv
-    f = DPO2000_csv('""" + join(demo_dir, 'DPO2000.csv') + """', debug = True)
+    f = DPO2000_csv(""" + repr(join(demo_dir, 'DPO2000.csv')) + """, debug = True)
 
     # Have a look at the file content
     #*********************************
@@ -306,7 +306,7 @@ def TDS2000_csv_demo():
     """
     code = """
     from metaArray.drv_Tek import TDS2000_csv
-    f = TDS2000_csv('""" + join(demo_dir, 'TDS2000.csv') + """', debug = True)
+    f = TDS2000_csv(""" + repr(join(demo_dir, 'TDS2000.csv')) + """, debug = True)
 
     # Have a look at the file content
     #*********************************
@@ -343,7 +343,7 @@ def pout_hist_demo():
     """
     code = """
     from metaArray.drv_flex import pout_hist
-    f = pout_hist('""" + join(demo_dir, 'june10j.flxhst') + """')
+    f = pout_hist(""" + repr(join(demo_dir, 'june10j.flxhst')) + """)
 
     # Have a look at the file content
     #*********************************
@@ -385,7 +385,7 @@ def data_out1_demo():
     """
     code = """
     from metaArray.drv_flex import data_out1
-    f = data_out1('""" + join(demo_dir, '3D_billet_10mm_40mm.flxdato') + """')
+    f = data_out1(""" + repr(join(demo_dir, '3D_billet_10mm_40mm.flxdato')) + """)
 
     # Have a look at the file content
     #*********************************
@@ -442,7 +442,7 @@ def HDF5_demo():
     # Load an example metaArray for demontration
     #*********************************
     from metaArray.drv_Tek import isf
-    ary = isf('""" + join(demo_dir, 'DPO2000.isf') + """')[1]
+    ary = isf(""" + repr(join(demo_dir, 'DPO2000.isf')) + """)[1]
 
 
     # Save it into a HDF5 file
@@ -485,9 +485,9 @@ def multi_1d_demo():
     # Load a selection of data files as example
     #*******************************************
     from metaArray.drv_Tek import isf
-    ary1 = isf('""" + join(demo_dir, 'multi_1.isf') + """')()
-    ary2 = isf('""" + join(demo_dir, 'multi_2.isf') + """')()
-    ary3 = isf('""" + join(demo_dir, 'multi_3.isf') + """')()
+    ary1 = isf(""" + repr(join(demo_dir, 'multi_1.isf')) + """)()
+    ary2 = isf(""" + repr(join(demo_dir, 'multi_2.isf')) + """)()
+    ary3 = isf(""" + repr(join(demo_dir, 'multi_3.isf')) + """)()
 
     # Correct for the DC offsets
     #****************************
@@ -529,7 +529,7 @@ def plot1d_demo():
     # Load some data as example
     #***************************
     from metaArray.drv_Tek import isf
-    ary = isf('""" + join(demo_dir, 'DPO2000.isf') + """')()
+    ary = isf(""" + repr(join(demo_dir, 'DPO2000.isf')) + """)()
 
     # Here is how to plot
     #*********************
@@ -557,7 +557,7 @@ def plot2d_demo():
     # Load some data as example
     #***************************
     from pickle import load
-    f = open('""" + join(demo_dir, 'rel_amplitude.pickle') + """', 'rb')
+    f = open(""" + repr(join(demo_dir, 'rel_amplitude.pickle')) + """, 'rb')
     a = load(f, encoding='latin1').transpose()
     f.close()
 
@@ -715,13 +715,13 @@ def flist_demo():
     # Here is how to obtain a list of files under the given directory
     #*****************************************************************
     from metaArray.misc import file_list
-    flist = file_list('""" + demo_dir + """')
+    flist = file_list(""" + repr(demo_dir) + """)
     for fpath in flist: print('* ' + fpath)
 
     # You can also specify a particular file name extension, and \
 whether or not to search the subdirectories.
     #**************************************************************************
-    flist = file_list('""" + demo_dir + """', ext = 'flxhst', SubDir = False)
+    flist = file_list(""" + repr(demo_dir) + """, ext = 'flxhst', SubDir = False)
     for fpath in flist: print('* ' + fpath)
     """
 
@@ -828,7 +828,7 @@ def general_demo():
     from metaArray.drv_pylab import plot1d
     from matplotlib.pyplot import show, close
     from metaArray.drv_Tek import isf
-    ary = isf('""" + join(demo_dir, 'DPO2000.isf') + """')[1]
+    ary = isf(""" + repr(join(demo_dir, 'DPO2000.isf')) + """)[1]
     fig, ax = plot1d(ary, legend=-1)
     fig.savefig('demo_isf.png', format='png')
     show()
